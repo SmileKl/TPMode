@@ -1,0 +1,19 @@
+server:
+  port: 17928
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://124.222.96.147:33063/vegetables?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: vegetables
+    password: vegetables0928..
+    type: com.zaxxer.hikari.HikariDataSource
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath:mapper/*.xml
+  global-config:
+    db-config:
+      logic-not-delete-value: 0
+      logic-delete-value: 1
