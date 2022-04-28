@@ -4,10 +4,10 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://124.222.96.147:33063/vegetables?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://124.222.96.147:3306/vegetables?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
     username: vegetables
     password: vegetables0928..
-    type: com.zaxxer.hikari.HikariDataSource
+    type: com.alibaba.druid.pool.DruidDataSource
   redis:
     port: 6379
     host: 124.222.96.147

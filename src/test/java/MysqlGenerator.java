@@ -26,18 +26,18 @@ public class MysqlGenerator  {
 
 
     // 输出的目录
-    public static final String OUT_DIR = "/src/main/java/";
+    public static final String OUT_DIR = "D:\\doc\\WorkSpace\\vegetables\\src\\main\\java";
 
     /**
      * mysql配置
      */
     //mysql用户名
-    public static final String MYSQL_USER_NAME = "java";
+    public static final String MYSQL_USER_NAME = "vegetables";
     //mysql密码
-    public static final String MYSQL_PASS_WORD = "C15wHlPsykrbiKGR";
+    public static final String MYSQL_PASS_WORD = "vegetables0928..";
 
     //表前缀
-    public static final String TABLE_PREFIX = "zjy_";
+    public static final String TABLE_PREFIX = "skl_";
 
 
     /**
@@ -53,7 +53,7 @@ public class MysqlGenerator  {
     //mapper包名
     public static final String MAPPER_NAME = "dao";
     //xml路径
-    public static final String XML_URL = "/src/main/resources/mapper/";
+    public static final String XML_URL = "D:\\doc\\WorkSpace\\vegetables\\src\\main\\resources\\mapper\\";
 
     //自定义实体，公共字段
     public static final String[] SUPER_ENTITY_COLUMNS = new String[]{"id", "deleted", "create_time", "create_people", "modify_time", "modify_people"};
@@ -62,20 +62,20 @@ public class MysqlGenerator  {
     /*****************************生成项目需要修改的配置****************************************/
 
     //项目名称
-    public static final String PROJECT_NAME = "corporation";
+    public static final String PROJECT_NAME = "";
 
 
     //mysql的url
-    public static final String MYSQL_URL = "jdbc:mysql://115.236.8.42:33063/application_corporation?useUnicode=true&characterEncoding=utf-8";
+    public static final String MYSQL_URL = "jdbc:mysql://124.222.96.147:3306/vegetables?useUnicode=true&characterEncoding=utf-8";
     //需要生成的表名
-    public static final String[] TABLE_NAMES = new String[]{"zjy_corporation_member"};
+    public static final String[] TABLE_NAMES = new String[]{"skl_person"};
 
 
     //自定义包路径
-    public static final String PACKAGE_URL = "com.zjy.application.corporation";
+    public static final String PACKAGE_URL = "com.example.vegetables";
 
     //自定义公共字段实体父类
-    public static final String SUPER_ENTITY_CLASS = "com.zjy.application.corporation.model.BaseEntity";
+    public static final String SUPER_ENTITY_CLASS = "com.example.vegetables.model.BaseEntity";
 
     //是否覆盖 service controller等 默认覆盖entity
     private static boolean IS_OVER_CONTROLLER = true;
@@ -108,7 +108,7 @@ public class MysqlGenerator  {
                         .setBaseResultMap(true)// XML ResultMap
                         .setBaseColumnList(true)// XML columList
                         //.setKotlin(true) 是否生成 kotlin 代码
-                        .setAuthor("suguojian")
+                        .setAuthor("朱归华")
                        // .setSwagger2(true)
                 // 自定义文件命名，注意 %s 会自动填充表实体属性！
                 // .setEntityName("%sEntity");

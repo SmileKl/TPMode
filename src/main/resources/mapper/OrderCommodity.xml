@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.vegetables.dao.OrderCommodityMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.example.vegetables.model.OrderCommodity">
+        <result column="id" property="id" />
+        <result column="create_people" property="createPeople" />
+        <result column="create_time" property="createTime" />
+        <result column="modify_people" property="modifyPeople" />
+        <result column="deleted" property="deleted" />
+        <result column="order_id" property="orderId" />
+        <result column="commodity_code" property="commodityCode" />
+        <result column="commodity_name" property="commodityName" />
+        <result column="commodity_count" property="commodityCount" />
+        <result column="modifyTime" property="modifytime" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,
+        create_people,
+        create_time,
+        modify_people,
+        deleted,
+        order_id, commodity_code, commodity_name, commodity_count, modifyTime
+    </sql>
+
+</mapper>
