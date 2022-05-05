@@ -4,6 +4,7 @@ package com.example.vegetables.controller.mgmt;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * <p>
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Controller;
  * @author 朱归华
  * @since 2022-04-28
  */
-@Controller
+@RestController
 @RequestMapping("/order")
 public class OrderController {
 

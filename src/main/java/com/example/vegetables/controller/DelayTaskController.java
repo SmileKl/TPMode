@@ -17,9 +17,16 @@ public class DelayTaskController {
     }
 
     @PostMapping("/delayTest")
-    private void delayTest(){
+    public void delayTest(){
         redisTemplate.opsForValue().set("result","1",5L, TimeUnit.SECONDS);
         System.out.println(redisTemplate.opsForValue().get("result"));
     }
+
+    @PostMapping("/hello")
+    public String hello(){
+        return "hello";
+    }
+
+
 
 }
