@@ -1,5 +1,6 @@
 package com.example.vegetables;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.lang.tree.TreeNodeConfig;
 import cn.hutool.core.lang.tree.TreeUtil;
@@ -11,10 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -89,6 +87,14 @@ class VegetablesApplicationTests {
                     tree.putExtra("path",TreeNode.getPath());
                 });
         System.out.println(JSON.toJSONString(treeNodes));
+    }
+
+    @Test
+    public void test22(){
+        System.out.println(new Date());
+        System.out.println(DateUtil.format(new Date(), "yyyy-MM-dd"));
+        System.out.println(DateUtil.format(new Date(), "yyyy-MM-dd")+" 00:00:00");
+        System.out.println(DateUtil.parse((DateUtil.format(new Date(), "yyyy-MM-dd") + " 23:59:59"),"yyyy-MM-dd HH:mm:ss"));
     }
 
 }
