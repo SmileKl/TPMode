@@ -2,8 +2,10 @@ package com.example.vegetables.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 @RestController
@@ -11,18 +13,20 @@ import java.util.concurrent.TimeUnit;
 public class DelayTaskController {
 
     private final StringRedisTemplate redisTemplate;
+    private final ThreadPoolExecutor commonThreadPoolExecutor;
 
-    public DelayTaskController(StringRedisTemplate redisTemplate) {
+    public DelayTaskController(StringRedisTemplate redisTemplate, ThreadPoolExecutor commonThreadPoolExecutor) {
         this.redisTemplate = redisTemplate;
+        this.commonThreadPoolExecutor = commonThreadPoolExecutor;
     }
 
-    @PostMapping("/delayTest")
+    @GetMapping("/delayTest")
     public void delayTest(){
         redisTemplate.opsForValue().set("result","1",5L, TimeUnit.SECONDS);
-        System.out.println(redisTemplate.opsForValue().get("result"));
+        redisTemplate.opsForValue().set("ssss","3",4L, TimeUnit.SECONDS);
     }
 
-    @PostMapping("/hello")
+    @GetMapping("/hello")
     public String hello(){
         return "hello";
     }

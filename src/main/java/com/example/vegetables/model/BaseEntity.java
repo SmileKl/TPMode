@@ -14,7 +14,7 @@ import java.util.Date;
 @Data
 public abstract class BaseEntity<T extends Model> extends Model {
 
-    @TableId(value = "id", type = IdType.ID_WORKER)
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     /**

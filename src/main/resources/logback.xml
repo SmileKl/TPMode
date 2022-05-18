@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <!--<include resource="org/springframework/boot/logging/logback/base.xml"/>-->
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
     <!--<include resource="org/springframework/boot/logging/logback/defaults.xml" />-->
 
 
@@ -49,8 +49,12 @@
     </appender>
 
 
-    <logger name="com.zjy.application.person" >
+    <logger name="com.example.vegetables" >
         <level value="INFO" />
+    </logger>
+
+    <logger name="com.example.vegetables" >
+        <level value="DEBUG" />
     </logger>
 
     <root level="INFO">

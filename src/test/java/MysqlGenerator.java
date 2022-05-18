@@ -68,7 +68,7 @@ public class MysqlGenerator  {
     //mysql的url
     public static final String MYSQL_URL = "jdbc:mysql://124.222.96.147:3306/vegetables?useUnicode=true&characterEncoding=utf-8";
     //需要生成的表名
-    public static final String[] TABLE_NAMES = new String[]{"skl_person"};
+    public static final String[] TABLE_NAMES = new String[]{"test"};
 
 
     //自定义包路径

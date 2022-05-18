@@ -2,18 +2,38 @@ server:
   port: 17928
 
 spring:
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://124.222.96.147:3306/vegetables?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
-    username: vegetables
-    password: vegetables0928..
-    type: com.alibaba.druid.pool.DruidDataSource
+  shardingsphere:
+    datasource:
+      names: ds
+      ds:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://124.222.96.147:3306/vegetables?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+        username: vegetables
+        password: vegetables0928..
+        type: com.alibaba.druid.pool.DruidDataSource
+    sharding:
+      tables:
+        test:
+          actual-data-nodes: ds.test
+          table-strategy:
+            standard:
+              sharding-column: time
+              precise-algorithm-class-name: com.example.vegetables.sharding.DateShardingAlgorithm
+              range-algorithm-class-name: com.example.vegetables.sharding.DateShardingAlgorithm
+      binding-tables: test
+      defaultDataSourceName: ds
+    props:
+      sql:
+        show: true
+
+
   redis:
     port: 6379
     host: 124.222.96.147
     database: 0
     timeout: 5000
     password: whatever
+
 
 mybatis-plus:
   configuration:
@@ -24,3 +44,6 @@ mybatis-plus:
       logic-not-delete-value: 0
       logic-delete-value: 1
 
+
+db:
+  schema-name: vegetables
