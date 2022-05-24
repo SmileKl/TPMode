@@ -20,11 +20,13 @@ spring:
               sharding-column: time
               precise-algorithm-class-name: com.example.vegetables.sharding.DateShardingAlgorithm
               range-algorithm-class-name: com.example.vegetables.sharding.DateShardingAlgorithm
+#            hint:
+#              algorithm-class-name: com.example.vegetables.sharding.DateShardingAlgorithm
       binding-tables: test
       defaultDataSourceName: ds
     props:
       sql:
-        show: true
+        show: false
 
 
   redis:
@@ -34,6 +36,10 @@ spring:
     timeout: 5000
     password: whatever
 
+
+
+  main:
+    allow-bean-definition-overriding: true
 
 mybatis-plus:
   configuration:
@@ -47,3 +53,4 @@ mybatis-plus:
 
 db:
   schema-name: vegetables
+

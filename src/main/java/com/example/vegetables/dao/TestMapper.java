@@ -18,4 +18,9 @@ import java.util.List;
 public interface TestMapper extends BaseMapper<Test> {
 
     Boolean batchInsertOrUpdate(List<Test> list);
+
+    Integer countNum();
+
+    List<Test> listTest();
+
 }

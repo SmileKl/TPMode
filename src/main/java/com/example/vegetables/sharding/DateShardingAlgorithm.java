@@ -3,10 +3,14 @@ package com.example.vegetables.sharding;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
+import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
+import org.apache.commons.lang.StringUtils;
+import org.apache.shardingsphere.api.sharding.ShardingValue;
+import org.apache.shardingsphere.api.sharding.hint.HintShardingValue;
 import org.apache.shardingsphere.api.sharding.standard.PreciseShardingValue;
 import org.apache.shardingsphere.api.sharding.standard.RangeShardingValue;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,7 +40,7 @@ public class DateShardingAlgorithm extends ShardingAlgorithmTool<Date> {
         Date lowerDate = valueRange.lowerEndpoint();
         Date upperDate = valueRange.upperEndpoint();
         List<String> tableNameList = new ArrayList<>();
-        for (DateTime dateTime : DateUtil.rangeToList(DateUtil.beginOfDay(lowerDate), DateUtil.endOfDay(upperDate), DateField.YEAR)) {
+        for (DateTime dateTime : DateUtil.rangeToList(DateUtil.beginOfYear(lowerDate), DateUtil.endOfYear(upperDate), DateField.YEAR)) {
             String resultTableName = rangeShardingValue.getLogicTableName() + DateUtil.format(dateTime, "_yyyy");
             if (shardingTablesExistsCheck(resultTableName)) {
                 tableNameList.add(resultTableName);
@@ -44,5 +48,7 @@ public class DateShardingAlgorithm extends ShardingAlgorithmTool<Date> {
         }
         return tableNameList;
     }
+
+
 }
 

@@ -4,7 +4,7 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.example.vegetables.model.Test">
-        <result column="sex" property="sex" />
+<!--        <result column="sex" property="sex" />-->
     </resultMap>
 
     <!-- 通用查询结果列 -->
@@ -26,5 +26,16 @@
         sex = VALUES (sex),
         create_date = VALUES (create_date)
     </insert>
+
+    <select id="countNum" resultType="java.lang.Integer">
+        select count(1) from test
+--         from (select distinct id
+--               from test
+--               where time > now()) as tc
+    </select>
+
+    <select id="listTest" resultType="com.example.vegetables.model.Test">
+        select * from test where id = 1527099606930911233
+    </select>
 
 </mapper>

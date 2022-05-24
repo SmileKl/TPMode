@@ -10,10 +10,17 @@ import cn.hutool.core.lang.tree.TreeUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.example.vegetables.config.DynamicTablesProperties;
+import com.example.vegetables.config.ShardingConfig;
 import com.example.vegetables.dao.TestMapper;
 import com.example.vegetables.param.TreeNodes;
+import com.example.vegetables.service.impl.TestServiceImpl;
+import com.example.vegetables.utils.YmlUtil;
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
+import org.apache.shardingsphere.api.hint.HintManager;
+import org.apache.shardingsphere.shardingjdbc.jdbc.core.datasource.ShardingDataSource;
 import org.apache.tomcat.util.threads.ThreadPoolExecutor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +32,11 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -42,6 +52,13 @@ class VegetablesApplicationTests {
     private TestMapper testMapper;
     @Autowired
     private DataSourceTransactionManager transactionManager;
+    @Autowired
+    private TestServiceImpl testService;
+    @Autowired
+    private ShardingConfig shardingConfig;
+    @Autowired
+    private DynamicTablesProperties dynamicTablesProperties;
+
 
     ThreadPoolExecutor executor = new ThreadPoolExecutor(16, 128, 30L, TimeUnit.SECONDS,
             new ArrayBlockingQueue<>(5000), Executors.defaultThreadFactory(), new ThreadPoolExecutor.CallerRunsPolicy());
@@ -183,7 +200,9 @@ class VegetablesApplicationTests {
 //        System.out.println("修改key值,查看过期时间");
 //        stringRedisTemplate.opsForValue().set("women","manNew_xg",DateUtil.between(DateUtil.date(),DateUtil.endOfDay(new Date()), DateUnit.SECOND),TimeUnit.SECONDS);
 //        System.out.println(stringRedisTemplate.opsForValue().getOperations().getExpire("women",TimeUnit.SECONDS));
-        System.out.println(DateUtil.format(DateUtil.date(), "yyyyMMdd"));
+//        System.out.println(DateUtil.format(DateUtil.date(), "yyyyMMdd"));
+//        System.out.println(Objects.nonNull(stringRedisTemplate.opsForValue().get("TaskID19")));
+
     }
 
     @Test
@@ -216,22 +235,23 @@ class VegetablesApplicationTests {
     }
 
     @Test
+    @Transactional(rollbackFor = Exception.class)
     public void test09() {
-        // 创建一个事务
-        DefaultTransactionDefinition def = new DefaultTransactionDefinition();
-        // 显式设置事务名称是只能通过编程完成的操作
-        def.setName("mani");
-        // 设置事务传播行为
-        def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
-        // 开始事务
-        TransactionStatus status = transactionManager.getTransaction(def);
+//        // 创建一个事务
+//        DefaultTransactionDefinition def = new DefaultTransactionDefinition();
+//        // 显式设置事务名称是只能通过编程完成的操作
+//        def.setName("mani");
+//        // 设置事务传播行为
+//        def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+//        // 开始事务
+//        TransactionStatus status = transactionManager.getTransaction(def);
         com.example.vegetables.model.Test test = new com.example.vegetables.model.Test();
         test.setTime(DateUtil.date());
+        test.setCreateDate(DateUtil.date());
         testMapper.insert(test);
         System.out.println("返回》》》》》");
-        transactionManager.commit(status);
+//        transactionManager.commit(status);
         executor.execute(this::add);
-
     }
 
     @Test
@@ -247,9 +267,9 @@ class VegetablesApplicationTests {
         com.example.vegetables.model.Test test = new com.example.vegetables.model.Test();
 //        test.setTime(DateUtil.offsetMonth(DateUtil.date(),1));
         try {
-            test.setTime(DateUtil.date());
-            testMapper.insert(test);
-            exception();
+//            test.setTime(DateUtil.date());
+//            testMapper.insert(test);
+//            exception();
             transactionManager.commit(status);
         } catch (Exception e) {
             System.out.println("回滚>>>" + e.getMessage());
@@ -291,10 +311,17 @@ class VegetablesApplicationTests {
     void testGS001() throws Exception {
         ExpressRunner runner = new ExpressRunner();
         DefaultContext<String, Object> context = new DefaultContext<>();
-        context.put("m", Float.valueOf("2.443"));
-        String express = "c=m";
-        Object r = runner.execute(express, context, null, true, false);
-        System.out.println(r);
+        context.put("m", new BigDecimal("98"));
+        context.put("n", new BigDecimal("122.00"));
+        String express = "c=m*n";
+        BigDecimal bigDecimal = (BigDecimal) runner.execute(express, context, null, true, false);
+        System.out.println(bigDecimal);
+
+//        11956.0
+
+//        NumberUtil.toBigDecimal(NumberUtil.round(NumberUtil.div(NumberUtil.mul(result, ownerProportion), 100), 2));
+
+
     }
 
     @Test
@@ -330,7 +357,43 @@ class VegetablesApplicationTests {
 
     @Test
     void testHuTool() {
-        String str = "task_timing_id8892341";
-        System.out.println(StrUtil.removePrefix(str, "task_timing_id"));
+//        String str = "task_timing_id8892341";
+//        System.out.println(StrUtil.removePrefix(str, "task_timing_id"));
+        System.out.println(NumberUtil.mul(2, 60));
+
     }
+
+    @Test
+    void test002() throws Exception {
+        /**
+         * 这里修改的是target目录编译后的路径，所以运行调试时。src目录下不会变
+         */
+//        File yml = new File("application.yml");
+//        //不管执行什么操作一定要先执行这个
+//        YmlUtil.setYmlFile(yml);
+//        System.out.println(YmlUtil.getByKey("spring.shardingsphere.sharding.tables.test.actual-data-nodes"));
+//        System.out.println("aaaaaa");
+//        YmlUtil.saveOrUpdateByKey("heart.agentId", "哈哈哈哈");
+        //YmlUtil.removeByKey("heart.agentId");
+
+        System.out.println("获取的配置文件>>>"+shardingConfig.getActualDataNodes());
+        System.out.println("修改配置>>>");
+//        shardingConfig.setActualDataNodes("test_2025");
+        System.out.println("修改后>>>"+shardingConfig.getActualDataNodes());
+    }
+
+    @Test
+    void testSharding() {
+        LambdaQueryWrapper<com.example.vegetables.model.Test> lqw = new LambdaQueryWrapper<>();
+//        lqw.le(com.example.vegetables.model.Test::getTime, DateUtil.parse("2022-05-30 00:00:00", "yyyy-MM-dd HH:mm:ss"));
+//        lqw. System.out.println(testService.list());ge(com.example.vegetables.model.Test::getTime, DateUtil.parse("2020-05-30 00:00:00", "yyyy-MM-dd HH:mm:ss"));
+        testService.list();
+
+    }
+
+    @Test
+    void dt(){
+        System.out.println(">>>>"+shardingConfig.getActualDataNodes());
+    }
+
 }

@@ -32,11 +32,11 @@ public class Test {
     @TableId(value = "id",type = IdType.ASSIGN_ID)
     private Long id;
 
-    private Integer sex;
+//    private Integer sex;
 
-    @JsonFormat(pattern = "yyyy-MM-dd kk:mm:ss", timezone = "GTM+8")
+    @JsonFormat(pattern = "yyyy-MM-dd kk:mm:ss")
     private Date time;
 
-    @JsonFormat(pattern = "yyyy-MM-dd kk:mm:ss", timezone = "GTM+8")
+    @JsonFormat(pattern = "yyyy-MM-dd kk:mm:ss")
     private Date createDate;
 }
