@@ -113,6 +113,11 @@
             <artifactId>yamlbeans</artifactId>
             <version>1.08</version>
         </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>lock4j-redis-template-spring-boot-starter</artifactId>
+            <version>2.2.2</version>
+        </dependency>
 
     </dependencies>
 
@@ -141,6 +146,7 @@
     </profiles>
 
     <build>
+        <finalName>application_vegetables-1.0.0-SNAPSHOT</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

@@ -1,16 +1,12 @@
 package com.example.vegetables.sharding;
 
-import com.example.vegetables.config.ShardingConfig;
 import com.example.vegetables.dao.CommonMapper;
 import com.example.vegetables.dao.CreateTableSql;
 import com.example.vegetables.utils.CommonUtils;
-import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shardingsphere.api.sharding.standard.PreciseShardingAlgorithm;
 import org.apache.shardingsphere.api.sharding.standard.RangeShardingAlgorithm;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;

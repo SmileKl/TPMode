@@ -34,9 +34,9 @@ public class Test {
 
 //    private Integer sex;
 
-    @JsonFormat(pattern = "yyyy-MM-dd kk:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GTM+8")
     private Date time;
 
-    @JsonFormat(pattern = "yyyy-MM-dd kk:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GTM+8")
     private Date createDate;
 }

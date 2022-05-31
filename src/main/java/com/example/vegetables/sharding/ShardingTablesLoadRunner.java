@@ -48,6 +48,7 @@ public class ShardingTablesLoadRunner implements CommandLineRunner {
         // 调用缓存重载方法
         List<String> tableNameList = ShardingAlgorithmTool.tableNameCacheReload(schemaName);
         commonUtils.DtTools(tableNameList);
+//        this.editConfig();
         log.info("ShardingTablesLoadRunner start OK");
     }
 

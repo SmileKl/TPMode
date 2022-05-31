@@ -2,8 +2,10 @@ package com.example.vegetables;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateField;
+import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.lang.UUID;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.lang.tree.TreeNodeConfig;
 import cn.hutool.core.lang.tree.TreeUtil;
@@ -42,6 +44,8 @@ import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @SpringBootTest
 class VegetablesApplicationTests {
@@ -394,6 +398,28 @@ class VegetablesApplicationTests {
     @Test
     void dt(){
         System.out.println(">>>>"+shardingConfig.getActualDataNodes());
+    }
+
+    @Test
+    void testStream(){
+        //list拼接
+//        Stream.concat()
+//        Calendar calendar = DateUtil.calendar((DateUtil.endOfMonth(DateUtil.date())));
+//        calendar.set(Calendar.MILLISECOND, 0);
+//        System.out.println(DateUtil.date(calendar));
+//        for (int i = 0; i < 10; i++) {
+//            System.out.println(UUID.randomUUID().toString());
+//        }
+//        List<String> list = new ArrayList<>();
+//        List<String> results = null;
+//        list.add("111");
+//        list.add("222");
+//        results.add("vvv");
+//        results.add("ccc");
+//        list = Stream.concat(list.stream(), results.stream()).collect(Collectors.toList());
+//        System.out.println(list);
+//        System.out.println(DateUtil.parse("2099-12-31 23:59:59.000", DatePattern.NORM_DATETIME_PATTERN));
+        System.out.println(DateUtil.offsetHour(DateUtil.date(), 2));
     }
 
 }
