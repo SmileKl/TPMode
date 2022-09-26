@@ -1,6 +1,8 @@
 
 package com.example.vegetables.model;
 
+import com.alibaba.excel.annotation.write.style.HeadFontStyle;
+import com.alibaba.excel.annotation.write.style.HeadStyle;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
@@ -34,9 +36,14 @@ public class Test {
 
 //    private Integer sex;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GTM+8")
-    private Date time;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date billStartTime;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GTM+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createDate;
+
+
+    private String msg;
+
+    private Long corpId;
 }

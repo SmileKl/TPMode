@@ -37,5 +37,16 @@
     <select id="listTest" resultType="com.example.vegetables.model.Test">
         select * from test where id = 1527099606930911233
     </select>
+    <select id="testLeft" resultType="com.example.vegetables.model.Test">
+        select  a.* from test a left join prod b on  a.corp_id = b.corp_id
+    </select>
+    <select id="testRight" resultType="com.example.vegetables.model.Test">
+        select * from prod
+    </select>
+
+    <select id="test_dd" resultType="java.util.Map">
+        select id,msg from test_1420315293208961026_2022
+    </select>
+
 
 </mapper>

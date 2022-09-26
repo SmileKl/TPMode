@@ -1,51 +1,56 @@
 package com.example.vegetables;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.lang.UUID;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.lang.tree.TreeNodeConfig;
 import cn.hutool.core.lang.tree.TreeUtil;
 import cn.hutool.core.util.NumberUtil;
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.RandomUtil;
+import cn.hutool.extra.qrcode.QrCodeUtil;
+import cn.hutool.extra.qrcode.QrConfig;
+import cn.hutool.poi.excel.ExcelUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.example.vegetables.config.DynamicTablesProperties;
 import com.example.vegetables.config.ShardingConfig;
 import com.example.vegetables.dao.TestMapper;
+import com.example.vegetables.model.Person;
 import com.example.vegetables.param.TreeNodes;
+import com.example.vegetables.service.ITestInterface;
+import com.example.vegetables.service.impl.TestInterfaceImpl;
 import com.example.vegetables.service.impl.TestServiceImpl;
-import com.example.vegetables.utils.YmlUtil;
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
-import org.apache.shardingsphere.api.hint.HintManager;
-import org.apache.shardingsphere.shardingjdbc.jdbc.core.datasource.ShardingDataSource;
+import org.apache.commons.lang.StringUtils;
 import org.apache.tomcat.util.threads.ThreadPoolExecutor;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.DecimalFormat;
-import java.time.LocalDate;
+import java.net.URLEncoder;
+import java.text.DateFormat;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @SpringBootTest
 class VegetablesApplicationTests {
@@ -62,7 +67,8 @@ class VegetablesApplicationTests {
     private ShardingConfig shardingConfig;
     @Autowired
     private DynamicTablesProperties dynamicTablesProperties;
-
+    @Autowired
+    private KafkaTemplate<String, String> kafkaTemplate;
 
     ThreadPoolExecutor executor = new ThreadPoolExecutor(16, 128, 30L, TimeUnit.SECONDS,
             new ArrayBlockingQueue<>(5000), Executors.defaultThreadFactory(), new ThreadPoolExecutor.CallerRunsPolicy());
@@ -213,7 +219,7 @@ class VegetablesApplicationTests {
     public void test32() {
         com.example.vegetables.model.Test test = new com.example.vegetables.model.Test();
         String dateStr1 = "2017-05-01";
-        test.setTime(DateUtil.parse(dateStr1, "yyyy-MM-dd"));
+        test.setBillStartTime(DateUtil.parse(dateStr1, "yyyy-MM-dd"));
         testMapper.insert(test);
     }
 
@@ -239,7 +245,6 @@ class VegetablesApplicationTests {
     }
 
     @Test
-    @Transactional(rollbackFor = Exception.class)
     public void test09() {
 //        // 创建一个事务
 //        DefaultTransactionDefinition def = new DefaultTransactionDefinition();
@@ -250,12 +255,13 @@ class VegetablesApplicationTests {
 //        // 开始事务
 //        TransactionStatus status = transactionManager.getTransaction(def);
         com.example.vegetables.model.Test test = new com.example.vegetables.model.Test();
-        test.setTime(DateUtil.date());
+        test.setBillStartTime(DateUtil.date());
         test.setCreateDate(DateUtil.date());
+        test.setCorpId(1111L);
         testMapper.insert(test);
         System.out.println("返回》》》》》");
 //        transactionManager.commit(status);
-        executor.execute(this::add);
+//        executor.execute(this::add);
     }
 
     @Test
@@ -380,10 +386,10 @@ class VegetablesApplicationTests {
 //        YmlUtil.saveOrUpdateByKey("heart.agentId", "哈哈哈哈");
         //YmlUtil.removeByKey("heart.agentId");
 
-        System.out.println("获取的配置文件>>>"+shardingConfig.getActualDataNodes());
+        System.out.println("获取的配置文件>>>" + shardingConfig.getActualDataNodes());
         System.out.println("修改配置>>>");
 //        shardingConfig.setActualDataNodes("test_2025");
-        System.out.println("修改后>>>"+shardingConfig.getActualDataNodes());
+        System.out.println("修改后>>>" + shardingConfig.getActualDataNodes());
     }
 
     @Test
@@ -396,12 +402,12 @@ class VegetablesApplicationTests {
     }
 
     @Test
-    void dt(){
-        System.out.println(">>>>"+shardingConfig.getActualDataNodes());
+    void dt() {
+        System.out.println(">>>>" + shardingConfig.getActualDataNodes());
     }
 
     @Test
-    void testStream(){
+    void testStream() {
         //list拼接
 //        Stream.concat()
 //        Calendar calendar = DateUtil.calendar((DateUtil.endOfMonth(DateUtil.date())));
@@ -421,5 +427,111 @@ class VegetablesApplicationTests {
 //        System.out.println(DateUtil.parse("2099-12-31 23:59:59.000", DatePattern.NORM_DATETIME_PATTERN));
         System.out.println(DateUtil.offsetHour(DateUtil.date(), 2));
     }
+
+    @Test
+    void testKafka() {
+        // kafkaTemplate.send(topic, key, msg);
+        kafkaTemplate.send("myFirstTopic", "hellow world-AAA");
+        kafkaTemplate.send("myFirstTopic", "hellow world-BBB");
+        kafkaTemplate.send("myFirstTopic", "hellow world-CCC");
+
+        System.out.println("--------------------------------------------------");
+
+
+    }
+
+    @Test
+    void testDDT() {
+        Date date = DateUtil.date();
+        Calendar calendar = DateUtil.calendar(date);
+        Date end1 = DateUtil.endOfMonth(date);
+        System.out.println("end1>>" + end1);
+        calendar.set(Calendar.DATE, 30);
+        Date end2 = DateUtil.date(calendar);
+        System.out.println("end2>>" + end2);
+        System.out.println(DateUtil.compare(end1, end2, DatePattern.NORM_DATE_PATTERN));
+    }
+
+    @Test
+    void testBig() {
+        BigDecimal b1 = new BigDecimal("0.00");
+//        System.out.println(b1.equals(new BigDecimal(0)));
+//        System.out.println(NumberUtil.round(0.00, 2).equals(NumberUtil.round(new BigDecimal("0"), 2)));
+        System.out.println(NumberUtil.round(new BigDecimal("0"), 2));
+    }
+
+    @Test
+    public void main222() {
+        try {
+
+            Date date = null;
+            date.before(new Date());
+        } catch (Exception e) {
+            System.out.println(JSON.toJSONString(e));
+            System.out.println(e.getStackTrace());
+        }
+    }
+
+    @Test
+    public void qrcode() {
+        QrCodeUtil.generate("https://hutool.cn/", 300, 300, FileUtil.file("d:/doc/qrcode.jpg"));
+//        QrCodeUtil.generate("https://hutool.cn/", 300, 300, FileUtil.file("d:/doc/qrcode.jpg"));
+        QrConfig config = new QrConfig(300, 300);
+        // 设置边距，既二维码和背景之间的边距
+        config.setMargin(0);
+        QrCodeUtil.generate("http://hutool.cn/", config, FileUtil.file("d:/doc/qrcode22.jpg"));
+
+        config.setMargin(1);
+        QrCodeUtil.generate("http://hutool.cn/", config, FileUtil.file("d:/doc/qrcode11.jpg"));
+
+        config.setMargin(4);
+        QrCodeUtil.generate("http://hutool.cn/", config, FileUtil.file("d:/doc/qrcode44.jpg"));
+
+        System.out.println("结束");
+    }
+
+    @Test
+    public void getById() {
+        com.example.vegetables.model.Test test = new com.example.vegetables.model.Test();
+        test.setId(1537364451680915458L);
+        com.example.vegetables.model.Test byId = testService.getById(test.getId());
+        System.out.println(byId);
+    }
+
+    @Test
+    public void testWW() {
+        Set<Integer> set = new HashSet<>();
+        set.add(2);
+        set.add(4);
+        set.add(1);
+        set.add(5);
+        Set<Integer> collect = set.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toCollection(LinkedHashSet::new));
+        System.out.println(">>>>>>>>>>>" + JSON.toJSONString(collect));
+    }
+
+    @Test
+    public void testXXLJob() {
+//        long time = new Date().getTime();
+//        System.out.println(time);
+//        System.out.println(">>>>" + DateUtil.dateSecond());
+
+        List<Map<String, String>> stringStringMap = testMapper.test_dd();
+        for (Map<String, String> stringMap : stringStringMap) {
+        }
+        System.out.println(stringStringMap);
+    }
+
+    @Test
+    public void testMM() {
+        String str = "";
+        System.out.println(StringUtils.isNotEmpty(str));
+    }
+
+    private void temp(Person person) {
+        String str = "123.23";
+        System.out.println(StringUtils.isNumeric(str));
+
+    }
+
 
 }

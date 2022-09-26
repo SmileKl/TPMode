@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -23,4 +24,7 @@ public interface TestMapper extends BaseMapper<Test> {
 
     List<Test> listTest();
 
+    List<Test> testLeft();
+    List<Test> testRight();
+    List<Map<String,String>> test_dd();
 }
