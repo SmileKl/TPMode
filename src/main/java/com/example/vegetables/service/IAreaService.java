@@ -1,16 +1,16 @@
 package com.example.vegetables.service;
 
-import com.example.vegetables.model.Order;
+import com.example.vegetables.model.Area;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
  * <p>
- * 订单 服务类
+ *  服务类
  * </p>
  *
  * @author 朱归华
- * @since 2022-04-28
+ * @since 2022-10-10
  */
-public interface IOrderService extends IService<Order> {
+public interface IAreaService extends IService<Area> {
 
 }

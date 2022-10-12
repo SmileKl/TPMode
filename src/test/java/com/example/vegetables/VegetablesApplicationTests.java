@@ -1,7 +1,6 @@
 package com.example.vegetables;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateTime;
@@ -11,41 +10,26 @@ import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.lang.tree.TreeNodeConfig;
 import cn.hutool.core.lang.tree.TreeUtil;
 import cn.hutool.core.util.NumberUtil;
-import cn.hutool.core.util.RandomUtil;
 import cn.hutool.extra.qrcode.QrCodeUtil;
 import cn.hutool.extra.qrcode.QrConfig;
-import cn.hutool.poi.excel.ExcelUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.example.vegetables.config.DynamicTablesProperties;
-import com.example.vegetables.config.ShardingConfig;
-import com.example.vegetables.dao.TestMapper;
-import com.example.vegetables.model.Person;
+import com.example.vegetables.dao.AreaMapper;
+import com.example.vegetables.model.Area;
 import com.example.vegetables.param.TreeNodes;
-import com.example.vegetables.service.ITestInterface;
-import com.example.vegetables.service.impl.TestInterfaceImpl;
-import com.example.vegetables.service.impl.TestServiceImpl;
+import com.example.vegetables.service.IAreaService;
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tomcat.util.threads.ThreadPoolExecutor;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 
-import java.io.UnsupportedEncodingException;
+import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.net.URLEncoder;
-import java.text.DateFormat;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Executors;
@@ -55,20 +39,11 @@ import java.util.stream.Collectors;
 @SpringBootTest
 class VegetablesApplicationTests {
 
-    @Autowired
-    private StringRedisTemplate stringRedisTemplate;
-    @Autowired
-    private TestMapper testMapper;
-    @Autowired
-    private DataSourceTransactionManager transactionManager;
-    @Autowired
-    private TestServiceImpl testService;
-    @Autowired
-    private ShardingConfig shardingConfig;
-    @Autowired
-    private DynamicTablesProperties dynamicTablesProperties;
-    @Autowired
-    private KafkaTemplate<String, String> kafkaTemplate;
+    @Resource
+    private AreaMapper areaMapper;
+
+    @Resource
+    private IAreaService areaService;
 
     ThreadPoolExecutor executor = new ThreadPoolExecutor(16, 128, 30L, TimeUnit.SECONDS,
             new ArrayBlockingQueue<>(5000), Executors.defaultThreadFactory(), new ThreadPoolExecutor.CallerRunsPolicy());
@@ -95,17 +70,6 @@ class VegetablesApplicationTests {
         pits -= 1;
         System.out.println("成功卖出一张票,剩余票数>>" + pits);
 
-    }
-
-    @Test
-    void test005() {
-        Map<String, Object> map = new HashMap();
-        map.put("name", "大帅哥");
-        map.put("age", "18");
-        stringRedisTemplate.opsForHash().putAll("map", map);
-        stringRedisTemplate.opsForHash().entries("map");
-        System.out.println(stringRedisTemplate.opsForHash().entries("map"));
-        System.out.println(stringRedisTemplate.opsForHash().get("map", "name"));
     }
 
     @Test
@@ -215,13 +179,6 @@ class VegetablesApplicationTests {
 
     }
 
-    @Test
-    public void test32() {
-        com.example.vegetables.model.Test test = new com.example.vegetables.model.Test();
-        String dateStr1 = "2017-05-01";
-        test.setBillStartTime(DateUtil.parse(dateStr1, "yyyy-MM-dd"));
-        testMapper.insert(test);
-    }
 
     @Test
     public void testFloat() {
@@ -244,48 +201,6 @@ class VegetablesApplicationTests {
 //        System.out.println(NumberUtil.round());
     }
 
-    @Test
-    public void test09() {
-//        // 创建一个事务
-//        DefaultTransactionDefinition def = new DefaultTransactionDefinition();
-//        // 显式设置事务名称是只能通过编程完成的操作
-//        def.setName("mani");
-//        // 设置事务传播行为
-//        def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
-//        // 开始事务
-//        TransactionStatus status = transactionManager.getTransaction(def);
-        com.example.vegetables.model.Test test = new com.example.vegetables.model.Test();
-        test.setBillStartTime(DateUtil.date());
-        test.setCreateDate(DateUtil.date());
-        test.setCorpId(1111L);
-        testMapper.insert(test);
-        System.out.println("返回》》》》》");
-//        transactionManager.commit(status);
-//        executor.execute(this::add);
-    }
-
-    @Test
-    public void add() {
-        // 创建一个事务
-        DefaultTransactionDefinition def = new DefaultTransactionDefinition();
-        // 显式设置事务名称是只能通过编程完成的操作
-        def.setName("SomeTxName");
-        // 设置事务传播行为
-        def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
-        // 开始事务
-        TransactionStatus status = transactionManager.getTransaction(def);
-        com.example.vegetables.model.Test test = new com.example.vegetables.model.Test();
-//        test.setTime(DateUtil.offsetMonth(DateUtil.date(),1));
-        try {
-//            test.setTime(DateUtil.date());
-//            testMapper.insert(test);
-//            exception();
-            transactionManager.commit(status);
-        } catch (Exception e) {
-            System.out.println("回滚>>>" + e.getMessage());
-            transactionManager.rollback(status);
-        }
-    }
 
     private void exception() throws Exception {
         throw new Exception("回滚");
@@ -358,12 +273,6 @@ class VegetablesApplicationTests {
         }
     }
 
-    @Test
-    void testMap() {
-        System.out.println(stringRedisTemplate.opsForValue().get("dds"));
-        stringRedisTemplate.opsForValue().set("fdd", "dd");
-        System.out.println(stringRedisTemplate.opsForValue().get("fdd"));
-    }
 
     @Test
     void testHuTool() {
@@ -371,39 +280,6 @@ class VegetablesApplicationTests {
 //        System.out.println(StrUtil.removePrefix(str, "task_timing_id"));
         System.out.println(NumberUtil.mul(2, 60));
 
-    }
-
-    @Test
-    void test002() throws Exception {
-        /**
-         * 这里修改的是target目录编译后的路径，所以运行调试时。src目录下不会变
-         */
-//        File yml = new File("application.yml");
-//        //不管执行什么操作一定要先执行这个
-//        YmlUtil.setYmlFile(yml);
-//        System.out.println(YmlUtil.getByKey("spring.shardingsphere.sharding.tables.test.actual-data-nodes"));
-//        System.out.println("aaaaaa");
-//        YmlUtil.saveOrUpdateByKey("heart.agentId", "哈哈哈哈");
-        //YmlUtil.removeByKey("heart.agentId");
-
-        System.out.println("获取的配置文件>>>" + shardingConfig.getActualDataNodes());
-        System.out.println("修改配置>>>");
-//        shardingConfig.setActualDataNodes("test_2025");
-        System.out.println("修改后>>>" + shardingConfig.getActualDataNodes());
-    }
-
-    @Test
-    void testSharding() {
-        LambdaQueryWrapper<com.example.vegetables.model.Test> lqw = new LambdaQueryWrapper<>();
-//        lqw.le(com.example.vegetables.model.Test::getTime, DateUtil.parse("2022-05-30 00:00:00", "yyyy-MM-dd HH:mm:ss"));
-//        lqw. System.out.println(testService.list());ge(com.example.vegetables.model.Test::getTime, DateUtil.parse("2020-05-30 00:00:00", "yyyy-MM-dd HH:mm:ss"));
-        testService.list();
-
-    }
-
-    @Test
-    void dt() {
-        System.out.println(">>>>" + shardingConfig.getActualDataNodes());
     }
 
     @Test
@@ -426,18 +302,6 @@ class VegetablesApplicationTests {
 //        System.out.println(list);
 //        System.out.println(DateUtil.parse("2099-12-31 23:59:59.000", DatePattern.NORM_DATETIME_PATTERN));
         System.out.println(DateUtil.offsetHour(DateUtil.date(), 2));
-    }
-
-    @Test
-    void testKafka() {
-        // kafkaTemplate.send(topic, key, msg);
-        kafkaTemplate.send("myFirstTopic", "hellow world-AAA");
-        kafkaTemplate.send("myFirstTopic", "hellow world-BBB");
-        kafkaTemplate.send("myFirstTopic", "hellow world-CCC");
-
-        System.out.println("--------------------------------------------------");
-
-
     }
 
     @Test
@@ -491,14 +355,6 @@ class VegetablesApplicationTests {
     }
 
     @Test
-    public void getById() {
-        com.example.vegetables.model.Test test = new com.example.vegetables.model.Test();
-        test.setId(1537364451680915458L);
-        com.example.vegetables.model.Test byId = testService.getById(test.getId());
-        System.out.println(byId);
-    }
-
-    @Test
     public void testWW() {
         Set<Integer> set = new HashSet<>();
         set.add(2);
@@ -510,28 +366,22 @@ class VegetablesApplicationTests {
     }
 
     @Test
-    public void testXXLJob() {
-//        long time = new Date().getTime();
-//        System.out.println(time);
-//        System.out.println(">>>>" + DateUtil.dateSecond());
-
-        List<Map<String, String>> stringStringMap = testMapper.test_dd();
-        for (Map<String, String> stringMap : stringStringMap) {
-        }
-        System.out.println(stringStringMap);
-    }
-
-    @Test
     public void testMM() {
         String str = "";
         System.out.println(StringUtils.isNotEmpty(str));
     }
 
-    private void temp(Person person) {
-        String str = "123.23";
-        System.out.println(StringUtils.isNumeric(str));
+    @Test
+    public void testMap() {
+//        List<String> list = new ArrayList<>();
+//        list.add("INSERT INTO area (label, pid, value) VALUES ('REE', @projectId, 'Zhengwu')");
+//        list.add("INSERT INTO area (label, pid, value) VALUES ('GTT', @projectId, 'Anhui')");
+//        for (String str : list) {
+//            String replace = str.replace("@projectId", "200");
+//            areaMapper.insetStr(replace);
+//        }
+        LambdaQueryWrapper<Area> lqw = new LambdaQueryWrapper<>();
 
     }
-
 
 }

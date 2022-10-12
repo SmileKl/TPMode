@@ -2,7 +2,6 @@ package com.example.vegetables.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.logging.Log;
-import org.springframework.stereotype.Component;
 
 @Slf4j
 public class LogStdOutImpl implements Log {
