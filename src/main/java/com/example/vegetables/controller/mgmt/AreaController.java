@@ -1,8 +1,7 @@
 package com.example.vegetables.controller.mgmt;
 
 
-import com.example.vegetables.utils.RedisUtil;
-import lombok.RequiredArgsConstructor;
+import com.example.vegetables.service.IAreaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -11,17 +10,20 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * <p>
- * 欠款信息 前端控制器
+ *  前端控制器
  * </p>
  *
  * @author 朱归华
- * @since 2022-04-28
+ * @since 2022-10-10
  */
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @RestController
-@RequestMapping("/person")
-public class PersonController {
+@RequestMapping("/area")
+public class AreaController {
 
-    private final RedisUtil redisUtil;
+
+    @Autowired
+    private IAreaService areaService;
+
+
 
 }
