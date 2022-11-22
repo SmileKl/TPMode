@@ -18,5 +18,11 @@
     <insert id="insetStr">
         ${sqlStr}
     </insert>
+    <select id="queryList" resultType="com.example.vegetables.model.Area">
+        select * from area
+--         limit (#{pageNum} - 1) * #{pageSize} , #{pageSize}
+        limit 1 ,10
+    </select>
+
 
 </mapper>

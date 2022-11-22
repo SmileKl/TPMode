@@ -16,4 +16,6 @@ import java.util.List;
 public interface AreaMapper extends BaseMapper<Area> {
 
     void insetStr(String sqlStr);
+
+    List<Area> queryList(int pageNum, int pageSize);
 }
