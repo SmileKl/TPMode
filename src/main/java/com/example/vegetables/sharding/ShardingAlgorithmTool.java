@@ -1,38 +1,32 @@
 package com.example.vegetables.sharding;
 
-import com.alibaba.fastjson.JSON;
+
 import com.example.vegetables.dao.CommonMapper;
 import com.example.vegetables.dao.CreateTableSql;
-import com.example.vegetables.utils.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shardingsphere.api.sharding.complex.ComplexKeysShardingAlgorithm;
-import org.apache.shardingsphere.api.sharding.standard.PreciseShardingAlgorithm;
-import org.apache.shardingsphere.api.sharding.standard.RangeShardingAlgorithm;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 分表工具
  */
 @Slf4j
-@Component
 public abstract class ShardingAlgorithmTool<T extends Comparable<?>> implements ComplexKeysShardingAlgorithm<T> {
 
     private static CommonMapper commonMapper;
-    private static CommonUtils commonUtils;
+    private static ShardingUtils shardingUtils;
 
     private static final HashSet<String> tableNameCache = new HashSet<>();
 
     /**
      * 手动注入
      */
-    public static void setCommonMapper(CommonMapper commonMapper, CommonUtils commonUtils) {
+    public static void setCommonMapper(CommonMapper commonMapper, ShardingUtils shardingUtils) {
         ShardingAlgorithmTool.commonMapper = commonMapper;
-        ShardingAlgorithmTool.commonUtils = commonUtils;
+        ShardingAlgorithmTool.shardingUtils = shardingUtils;
     }
 
     /**
@@ -51,7 +45,6 @@ public abstract class ShardingAlgorithmTool<T extends Comparable<?>> implements 
             }
 
             // 缓存中无此表 建表 并添加缓存
-            System.out.println("表名::::" + logicTableName);
             CreateTableSql createTableSql = commonMapper.selectTableCreateSql(logicTableName);
             String sql = createTableSql.getCreateTable();
             sql = sql.replace("CREATE TABLE", "CREATE TABLE IF NOT EXISTS");
@@ -59,11 +52,12 @@ public abstract class ShardingAlgorithmTool<T extends Comparable<?>> implements 
             commonMapper.executeSql(sql);
             tableNameCache.add(resultTableName);
             try {
+                //刷新sharding配置
                 List<String> list = new ArrayList<>();
                 list.add(resultTableName);
-                commonUtils.DtTools(list);
+                shardingUtils.DtTools(list,null);
             } catch (Exception e) {
-                System.out.println("更新表失败" + e.getMessage());
+                System.out.println("更新表失败>>>>" + e.getMessage());
             }
         }
 
@@ -73,8 +67,6 @@ public abstract class ShardingAlgorithmTool<T extends Comparable<?>> implements 
     //用于查询只传入单个corpId的情况
     public List<String> shardingTablesCheckAndGet(String logicTableName, String resultTableName) {
         List<String> tableNameList = new ArrayList<>();
-        System.out.println("缓存中的表>>>" + JSON.toJSONString(tableNameCache));
-        System.out.println("传入的名称resultTableName>>>" + resultTableName);
         for (String tableName : tableNameCache) {
             if (tableName.contains(resultTableName)) {
                 tableNameList.add(tableName);

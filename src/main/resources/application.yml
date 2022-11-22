@@ -17,23 +17,23 @@ spring:
         type: com.alibaba.druid.pool.DruidDataSource
     sharding:
       tables:
-        test:
-          actual-data-nodes: ds.test
+        area:
+          actual-data-nodes: ds.area
           table-strategy:
             complex:
-              sharding-columns: bill_start_time,corp_id
+              sharding-columns: project_id
 #              precise-algorithm-class-name: com.example.vegetables.sharding.DateShardingAlgorithm
 #              range-algorithm-class-name: com.example.vegetables.sharding.DateShardingAlgorithm
-              algorithm-class-name: com.example.vegetables.sharding.DateShardingAlgorithm
+              algorithm-class-name: com.example.vegetables.sharding.ComplexShardingAlgorithm
 #            hint:
 #              algorithm-class-name: com.example.vegetables.sharding.DateShardingAlgorithm
-        prod:
-          actual-data-nodes: ds.prod
+        category:
+          actual-data-nodes: ds.category
           table-strategy:
             complex:
-              sharding-columns: bill_start_time,corp_id
-              algorithm-class-name: com.example.vegetables.sharding.DateShardingAlgorithm
-      binding-tables: test,prod
+              sharding-columns: project_id
+              algorithm-class-name: com.example.vegetables.sharding.ComplexShardingAlgorithm
+      binding-tables: area,category
       defaultDataSourceName: ds
     props:
       sql:
@@ -41,11 +41,11 @@ spring:
 
 
   redis:
-    port: 6379
+    port: 6696
     host: 124.222.96.147
     database: 0
     timeout: 5000
-    password: whatever
+    password: hH8-vI8~kV6/6
 
   kafka:
     bootstrap-servers: 124.222.96.147:9092

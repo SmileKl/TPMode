@@ -1,11 +1,10 @@
 package com.example.vegetables.sharding;
 
-import com.example.vegetables.config.ShardingConfig;
+import com.alibaba.fastjson.JSON;
 import com.example.vegetables.dao.CommonMapper;
-import com.example.vegetables.utils.CommonUtils;
-import com.example.vegetables.utils.YmlUtil;
+import com.example.vegetables.utils.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
@@ -14,10 +13,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.io.File;
-import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 项目启动后 读取已有分表 进行缓存
@@ -35,44 +34,55 @@ public class ShardingTablesLoadRunner implements CommandLineRunner {
     private CommonMapper commonMapper;
 
     @Resource
-    private CommonUtils commonUtils;
+    private ShardingUtils shardingUtils;
 
     @Resource
-    private ShardingConfig shardingConfig;
+    private RedisUtil redisUtil;
 
     @Override
     public void run(String... args) throws Exception {
 
         // 给 分表工具类注入属性
-        ShardingAlgorithmTool.setCommonMapper(commonMapper, commonUtils);
+        ShardingAlgorithmTool.setCommonMapper(commonMapper, shardingUtils);
         // 调用缓存重载方法
         List<String> tableNameList = ShardingAlgorithmTool.tableNameCacheReload(schemaName);
-        commonUtils.DtTools(tableNameList);
-//        this.editConfig();
+        //刷新sharding配置
+        shardingUtils.DtTools(tableNameList,null);
         log.info("ShardingTablesLoadRunner start OK");
     }
 
-//    @Scheduled(cron = "0 */1 * * * ?")
-//    public void refresh() throws Exception {
+    /**
+     * 定时刷新sharding配置
+     *
+     * @author zhugh
+     * @date 2022/5/23 16:08
+     */
+//    @XxlJob("property-refreshShardingTables")
+    @Scheduled(cron = "0/10 * * * * ?")
+    public void refresh() throws Exception {
 //        log.info("定时任务开始");
-//        ShardingAlgorithmTool.setCommonMapper(commonMapper,commonUtils);
-//        // 调用缓存重载方法
-//        List<String> tableNameList = ShardingAlgorithmTool.tableNameCacheReload(schemaName);
-//        commonUtils.DtTools(tableNameList);
+        ShardingAlgorithmTool.setCommonMapper(commonMapper, shardingUtils);
+        // 调用缓存重载方法
+        List<String> tableNameList = ShardingAlgorithmTool.tableNameCacheReload(schemaName);
+        if (StringUtils.isEmpty(redisUtil.getValue("tableNameList"))) {
+            redisUtil.setValue("tableNameList", JSON.toJSONString(tableNameList));
+            shardingUtils.DtTools(tableNameList,null);
+//            log.info("定时任务结束");
+            return;
+        }
+        List<String> stringList = JSON.parseArray(redisUtil.getValue("tableNameList"), String.class);
+        if (stringList.size() != tableNameList.size()) {
+            log.info("有需要定时刷新的表::>>" + JSON.toJSONString(stringList));
+            List<String> needRemoveData = needRemoveData(stringList, tableNameList);
+            shardingUtils.DtTools(tableNameList,needRemoveData);
+            redisUtil.setValue("tableNameList", JSON.toJSONString(tableNameList));
+        }
 //        log.info("定时任务结束");
-//    }
+    }
 
-//    private void editConfig() throws Exception {
-//        File yml = new File(Objects.requireNonNull(ShardingTablesLoadRunner.class.getClassLoader().getResource("application.yml")).toURI());
-//        YmlUtil.setYmlFile(yml);
-//        System.out.println(YmlUtil.getByKey("spring.shardingsphere.sharding.tables.test.actual-data-nodes"));
-//        YmlUtil.saveOrUpdateByKey("spring.shardingsphere.sharding.tables.test.actual-data-nodes", "ds.test,ds.test_2022,ds.test_2026,ds.test_2029");
-//        System.out.println(YmlUtil.getByKey("spring.shardingsphere.sharding.tables.test.actual-data-nodes"));
-//        getConfig();
-//    }
-//
-//    private void getConfig() {
-//        System.out.println("配置>>>" + shardingConfig.getActualDataNodes());
-//    }
+    public List<String> needRemoveData(List<String> stringList,List<String> tableNameList){
+        Map<String, String> tableMap = tableNameList.stream().collect(Collectors.toMap(s -> s, s -> s));
+        return stringList.stream().filter(tableName -> !tableMap.containsKey(tableName)).collect(Collectors.toList());
+    }
 }
 
