@@ -1,5 +1,8 @@
 package com.example.vegetables.sharding;
 
+import cn.hutool.core.math.MathUtil;
+import cn.hutool.core.util.NumberUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -51,8 +54,12 @@ public class ShardingUtils {
             Map<String, String> tableMap = actualDataNodes.stream().collect(Collectors.toMap(DataNode::getTableName, DataNode::getTableName));
             tableNameList.forEach(s -> {
                 if (s.contains(logicTableName + "_") && !tableMap.containsKey(s)) {
-                    //新增节点
-                    actualDataNodes.add(new DataNode(dataSourceName + "." + s));
+                    //排除其他主表
+                    String suffix = s.replaceAll(logicTableName + "_", "");
+                    if (NumberUtil.isNumber(suffix)){
+                        //新增节点
+                        actualDataNodes.add(new DataNode(dataSourceName + "." + s));
+                    }
                 }
             });
             if (CollectionUtils.isNotEmpty(removeList)) {
@@ -90,5 +97,11 @@ public class ShardingUtils {
             datasourceToTablesMapField.set(tableRule, datasourceToTablesMap);
             log.info("-----刷新结束-----");
         }
+    }
+
+    public static void main(String[] args) {
+        String a = "area_project";
+        String area_ = a.replaceAll("area_", "");
+        System.out.println(NumberUtil.isNumber(area_));
     }
 }
